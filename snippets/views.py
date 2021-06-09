@@ -8,7 +8,7 @@ from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
 
 
-class SnippetsList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class SnippetsList(generics.ListCreateAPIView):
     """
     List all code snippets, or create a new snippet.
     """
@@ -28,7 +28,7 @@ class SnippetsList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gene
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SnippetDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete a code snippet
     """
