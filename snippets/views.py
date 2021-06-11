@@ -1,11 +1,13 @@
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.views import APIView
 from django.http import Http404
 from rest_framework.response import Response
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework import permissions
 from snippets.models import Snippet
-from snippets.serializers import SnippetSerializer
+from snippets.serializers import SnippetSerializer, UserSerializer
 
 
 class SnippetsList(generics.ListCreateAPIView):
@@ -13,19 +15,13 @@ class SnippetsList(generics.ListCreateAPIView):
     List all code snippets, or create a new snippet.
     """
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, format=None):
-        data = request.data
-        serializer = SnippetSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -33,14 +29,17 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     Retrieve, update or delete a code snippet
     """
 
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
