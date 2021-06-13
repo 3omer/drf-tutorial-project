@@ -16,8 +16,7 @@ class SnippetsList(generics.ListCreateAPIView):
     List all code snippets, or create a new snippet.
     """
 
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
